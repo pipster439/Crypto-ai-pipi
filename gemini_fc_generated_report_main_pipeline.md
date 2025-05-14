@@ -1,0 +1,1 @@
+Please provide the pre-calculated market data and standard indicators.  I need that information to generate the comprehensive market report as requested.  Once you provide the data, I will follow the specified output structure and analyze the information to give you a detailed report.
