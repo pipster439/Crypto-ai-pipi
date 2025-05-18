@@ -16,7 +16,7 @@
 ### 必要的Python库
 
 ```bash
-pip install ccxt google-generativeai pandas numpy tabulate matplotlib pycryptodome
+pip install ccxt google-generativeai pandas numpy tabulate matplotlib pycryptodome panda_ta
 ```
 
 ### API密钥设置
@@ -112,3 +112,4 @@ python main_pipeline_lbank_with_rsa.py --report_file my_custom_report.md
 - macOS
 - Linux (Ubuntu)
 - 可通过Termux在Android上运行
+（并非）
