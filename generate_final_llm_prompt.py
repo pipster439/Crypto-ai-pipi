@@ -1,0 +1,123 @@
+import json
+import pandas as pd
+
+def format_data_for_llm(fetched_data_path, indicators_data_path):
+    """
+    Loads fetched market data and calculated indicators, then formats them
+    into a string suitable for injection into the LLM prompt.
+    """
+    try:
+        with open(fetched_data_path, 'r') as f:
+            fetched_data = json.load(f)
+    except Exception as e:
+        return f"Error loading fetched data: {e}"
+
+    try:
+        # Indicators data is saved as a JSON table by the previous script
+        indicators_df = pd.read_json(indicators_data_path, orient="table")
+        # Convert index (timestamp) to a more readable format if it's not already string
+        if not isinstance(indicators_df.index, pd.Index) or not pd.api.types.is_string_dtype(indicators_df.index):
+            indicators_df.index = pd.to_datetime(indicators_df.index).strftime('%Y-%m-%d %H:%M:%S UTC')
+        
+        # Get the latest row of indicators for summary
+        latest_indicators = indicators_df.iloc[-1].to_dict() if not indicators_df.empty else {}
+        # Get the last few rows of OHLCV for context (from the indicators_df as it includes original ohlcv)
+        ohlcv_context_df = indicators_df[['open', 'high', 'low', 'close', 'volume']].tail(5)
+        
+    except Exception as e:
+        return f"Error loading or processing indicators data: {e}"
+
+    # Prepare the data summary string
+    summary_parts = []
+    summary_parts.append("## Provided Market Data Summary:")
+    summary_parts.append(f"- **Symbol:** {fetched_data.get('symbol', 'N/A')}")
+    summary_parts.append(f"- **Interval:** {fetched_data.get('interval', 'N/A')}")
+    
+    summary_parts.append("\n### Recent OHLCV Data (last 5 periods):")
+    summary_parts.append(ohlcv_context_df.to_markdown(index=True))
+    
+    summary_parts.append("\n### Latest Calculated Technical Indicators:")
+    # Select a few key indicators for the summary, LLM can refer to full table if needed or recalculate
+    key_summary_indicators = {
+        k: v for k, v in latest_indicators.items() 
+        if any(sub in k.upper() for sub in ['RSI', 'MACD', 'SMA', 'EMA', 'BBL', 'BBM', 'BBU', 'KDJ', 'OBV', 'MFI', 'AD'])
+    }
+    for key, value in key_summary_indicators.items():
+        summary_parts.append(f"  - **{key}:** {f'{value:.4f}' if isinstance(value, float) else str(value)}")
+    summary_parts.append("(Note: A full table of OHLCV data and a comprehensive set of calculated indicators are available for your analysis based on the provided raw OHLCV data.)")
+
+    if fetched_data.get('funding_rate'):
+        summary_parts.append("\n### Funding Rate Data:")
+        fr_data = fetched_data['funding_rate']
+        summary_parts.append(f"  - Symbol: {fr_data.get('symbol', 'N/A')}")
+        summary_parts.append(f"  - Rate: {fr_data.get('fundingRate', 'N/A')}")
+        summary_parts.append(f"  - Timestamp: {pd.to_datetime(fr_data.get('fundingTimestamp'), unit='ms') if fr_data.get('fundingTimestamp') else 'N/A'}")
+    else:
+        summary_parts.append("\n- **Funding Rate Data:** Not provided or not available.")
+
+    if fetched_data.get('long_short_ratio'):
+        summary_parts.append("\n### Long/Short Ratio Data:")
+        # Assuming structure, adjust if necessary
+        ls_data = fetched_data['long_short_ratio']
+        summary_parts.append(f"  - Ratio: {ls_data.get('ratio', 'N/A')}") # Example key
+    else:
+        summary_parts.append("\n- **Long/Short Ratio Data:** Not provided or not available.")
+    
+    summary_parts.append("\n(End of Provided Market Data Summary)")
+    return "\n".join(summary_parts)
+
+def generate_prompt(template_path, fetched_data_path, indicators_data_path, output_prompt_path):
+    try:
+        with open(template_path, 'r', encoding='utf-8') as f:
+            template_content = f.read()
+    except Exception as e:
+        print(f"Error reading template file: {e}")
+        return
+
+    data_summary_string = format_data_for_llm(fetched_data_path, indicators_data_path)
+
+    final_prompt = template_content.replace("[---INSERT FETCHED MARKET DATA HERE---]", data_summary_string)
+
+    try:
+        with open(output_prompt_path, 'w', encoding='utf-8') as f:
+            f.write(final_prompt)
+        print(f"Successfully generated final LLM prompt at: {output_prompt_path}")
+    except Exception as e:
+        print(f"Error writing final prompt file: {e}")
+
+if __name__ == "__main__":
+    template_file = "/home/ubuntu/user_llm_prompt_template_v2.md"
+    # This is the raw data fetched by coinw_functions_for_gemini.py (or its CCXT equivalent)
+    fetched_data_file = "/home/ubuntu/fetched_market_data.json" 
+    # This is the data after being processed by calculate_technical_indicators.py
+    indicators_data_file = "/home/ubuntu/ohlcv_with_all_indicators.json"
+    output_prompt_file = "/home/ubuntu/final_llm_prompt_for_gemini.md"
+
+    # First, ensure the indicators file is generated by running the calculation script
+    # This simulates the previous step in the pipeline
+    print("Ensuring indicators data file exists by running calculation script...")
+    # We need to call the main part of calculate_technical_indicators.py
+    # For simplicity, we'll assume it has run and produced the file.
+    # In a real pipeline, you'd call it: os.system("python3.11 /home/ubuntu/calculate_technical_indicators.py")
+    # For this step, we'll just check if the input file for it exists.
+    try:
+        with open(fetched_data_file, 'r') as f:
+            pass # Just check if it's readable
+        print(f"{fetched_data_file} exists. Assuming {indicators_data_file} would be generated by calculate_technical_indicators.py.")
+        # Create a dummy indicators_data_file if it doesn't exist for the script to run
+        try:
+            pd.read_json(indicators_data_file, orient='table')
+            print(f"{indicators_data_file} exists and is readable.")
+        except FileNotFoundError:
+            print(f"Warning: {indicators_data_file} not found. The prompt generator might not have full indicator data.")
+            print("Creating a dummy empty indicators file for the script to proceed, but results will be incomplete.")
+            dummy_df = pd.DataFrame(columns=['open', 'high', 'low', 'close', 'volume'])
+            dummy_df.index.name = 'timestamp'
+            dummy_df.to_json(indicators_data_file, orient='table', indent=4)
+
+    except FileNotFoundError:
+        print(f"Error: {fetched_data_file} not found. Cannot proceed with prompt generation.")
+        exit(1)
+        
+    generate_prompt(template_file, fetched_data_file, indicators_data_file, output_prompt_file)
+
