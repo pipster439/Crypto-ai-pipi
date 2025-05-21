@@ -1,0 +1,1161 @@
+{
+  "api_documentation": {
+    "title": "CoinW API 文档",
+    "version": "latest",
+    "base_url": "https://api.coinw.com",
+    "authentication": {
+      "method": "HMAC-SHA256",
+      "headers": [
+        {
+          "name": "timestamp",
+          "description": "时间戳"
+        },
+        {
+          "name": "api_key",
+          "description": "Access Key"
+        },
+        {
+          "name": "sign",
+          "description": "加密参数"
+        }
+      ],
+      "signature_generation": {
+        "get_request": {
+          "format": "timestamp + 'GET' + endpoint名称 + get请求参数",
+          "example": "1701944491793GET/v1/fapi/getStopProfit?orderId=54635502191944903&instrument=BTC&openId=0"
+        },
+        "post_request": {
+          "format": "timestamp + 'POST' + endpoint名称 + Post body参数",
+          "example": "1701945494169POST/v1/fapi/open{\"leverage\":\"50\",\"quantity\":\"1\",\"positionType\":\"execute\",\"contractType\":\"1\",\"instrument\":\"ADA\",\"quantityUnit\":\"1\",\"positionModel\":\"0\",\"direction\":\"long\"}"
+        },
+        "encryption": "使用\"secret_key\"作为HMAC SHA256的密钥，将\"signParam\"作为操作数应用后，获取输出结果，然后进行base64编码"
+      }
+    },
+    "rate_limits": {
+      "default": "10 requests/s",
+      "special_cases": [
+        {
+          "endpoints": ["设置持仓模式", "设置止盈止损", "设置移动止盈止损", "设置合约万能金状态"],
+          "limit": "5 requests/s"
+        }
+      ]
+    },
+    "endpoints": {
+      "usdt_margined_futures": [
+        {
+          "name": "查询未完成订单",
+          "method": "GET",
+          "path": "/v1/perpum/orders/open",
+          "rate_limit": "10 requests/s",
+          "parameters": [
+            {
+              "name": "instrument",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "交易对"
+            },
+            {
+              "name": "positionType",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "plan: 限价, execute: 市价, planTrigger: 条件单, moveStopProfitLoss: 追踪止损"
+            },
+            {
+              "name": "page",
+              "type": "int",
+              "required": false,
+              "default": 1,
+              "description": "当前页"
+            },
+            {
+              "name": "pageSize",
+              "type": "int",
+              "required": false,
+              "default": 50,
+              "description": "当前页数据数量"
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "id",
+              "type": "string",
+              "description": "仓位ID"
+            },
+            {
+              "name": "userId",
+              "type": "Long",
+              "description": "用户ID"
+            },
+            {
+              "name": "baseSize",
+              "type": "BigDecimal",
+              "description": "描述"
+            },
+            {
+              "name": "createdDate",
+              "type": "timestamp",
+              "description": "创建时间"
+            },
+            {
+              "name": "currentPiece",
+              "type": "BigDecimal",
+              "description": "当前合约数量"
+            },
+            {
+              "name": "direction",
+              "type": "string",
+              "description": "long: 开多, short: 开空"
+            },
+            {
+              "name": "frozenFee",
+              "type": "BigDecimal",
+              "description": "下单冻结手续费"
+            },
+            {
+              "name": "indexPrice",
+              "type": "BigDecimal",
+              "description": "指数触发价格"
+            },
+            {
+              "name": "instrument",
+              "type": "string",
+              "description": "交易对"
+            },
+            {
+              "name": "leverage",
+              "type": "BigDecimal",
+              "description": "仓位杠杆"
+            },
+            {
+              "name": "liquidateBy",
+              "type": "string",
+              "description": "开仓/平仓"
+            },
+            {
+              "name": "margin",
+              "type": "BigDecimal",
+              "description": "仓位使用保证金"
+            },
+            {
+              "name": "orderPrice",
+              "type": "BigDecimal",
+              "description": "订单价格"
+            },
+            {
+              "name": "orderStatus",
+              "type": "string",
+              "description": "unFinish: 未成交, part: 部分成交, Finish: 全部成交, Cancel: 已取消"
+            },
+            {
+              "name": "originalType",
+              "type": "string",
+              "description": "原始订单类型"
+            },
+            {
+              "name": "posType",
+              "type": "string",
+              "description": "仓位类型: plan/planTrigger/execute"
+            },
+            {
+              "name": "positionMargin",
+              "type": "BigDecimal",
+              "description": "仓位保证金"
+            },
+            {
+              "name": "positionModel",
+              "type": "int",
+              "description": "仓位模式: 0-逐仓, 1-全仓"
+            },
+            {
+              "name": "quantity",
+              "type": "string",
+              "description": "持有合约或金额"
+            },
+            {
+              "name": "quantityUnit",
+              "type": "BigDecimal",
+              "description": "金额单位: 0-USDT, 1-合约, 2-币"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "状态: 开仓/平仓"
+            },
+            {
+              "name": "takerFee",
+              "type": "BigDecimal",
+              "description": "吃单手续费率"
+            },
+            {
+              "name": "totalPiece",
+              "type": "BigDecimal",
+              "description": "总合约数"
+            },
+            {
+              "name": "updatedDate",
+              "type": "string",
+              "description": "最后更新"
+            }
+          ],
+          "example_response": {
+            "code": 0,
+            "data": {
+              "rows": [
+                {
+                  "baseSize": 1,
+                  "createdDate": 1698211897000,
+                  "currentPiece": 1000,
+                  "direction": "short",
+                  "frozenFee": 44.407308,
+                  "id": 43308284486163264,
+                  "indexPrice": 33998.37,
+                  "instrument": "BTC",
+                  "leverage": 20,
+                  "liquidateBy": "manual",
+                  "makerFee": 0.0004,
+                  "margin": 1850.3045,
+                  "orderPrice": 37006.09,
+                  "orderStatus": "unFinish",
+                  "originalType": "plan",
+                  "posType": "plan",
+                  "positionMargin": 1850.3045,
+                  "positionModel": 1,
+                  "processStatus": 0,
+                  "quantity": 1000,
+                  "quantityUnit": 1,
+                  "source": "web",
+                  "status": "open",
+                  "takerFee": 0.0006,
+                  "totalPiece": 1000,
+                  "updatedDate": 1698211897000,
+                  "userId": 600003366
+                }
+              ],
+              "total": 0
+            },
+            "msg": ""
+          }
+        },
+        {
+          "name": "查询待处理订单数量",
+          "method": "GET",
+          "path": "/v1/perpum/orders/openQuantity",
+          "rate_limit": "10 requests/s",
+          "parameters": [],
+          "response_fields": [
+            {
+              "name": "data",
+              "type": "Integer",
+              "description": "待处理订单"
+            }
+          ],
+          "example_response": {
+            "code": 0,
+            "data": 0,
+            "msg": ""
+          }
+        },
+        {
+          "name": "查询个人交易历史",
+          "method": "GET",
+          "path": "/v1/perpum/orders/trades",
+          "rate_limit": "10 requests/s",
+          "parameters": [
+            {
+              "name": "instrument",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "交易对"
+            },
+            {
+              "name": "page",
+              "type": "int",
+              "required": false,
+              "default": 1,
+              "description": "当前页"
+            },
+            {
+              "name": "pageSize",
+              "type": "int",
+              "required": false,
+              "default": 50,
+              "description": "当前页数据数量"
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "closedPiece",
+              "type": "integer",
+              "description": "平仓数量"
+            },
+            {
+              "name": "createdDate",
+              "type": "long",
+              "description": "交易时间戳"
+            },
+            {
+              "name": "dealPrice",
+              "type": "BigDecimal",
+              "description": "成交价格"
+            },
+            {
+              "name": "direction",
+              "type": "string",
+              "description": "long: 开多, short: 开空"
+            },
+            {
+              "name": "id",
+              "type": "long",
+              "description": "交易ID"
+            }
+          ]
+        },
+        {
+          "name": "查询产品信息",
+          "method": "GET",
+          "path": "/v1/perpum/instruments",
+          "rate_limit": "10 requests/s",
+          "parameters": [
+            {
+              "name": "name",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": "交易对"
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "base",
+              "type": "string",
+              "description": "交易对"
+            },
+            {
+              "name": "defaultLeverage",
+              "type": "Integer",
+              "description": "默认杠杆"
+            },
+            {
+              "name": "defaultStopLossRate",
+              "type": "BigDecimal",
+              "description": "止损比例"
+            },
+            {
+              "name": "defaultStopProfitRate",
+              "type": "BigDecimal",
+              "description": "止盈比例"
+            },
+            {
+              "name": "indexId",
+              "type": "Integer",
+              "description": "指数ID/标的资产指数"
+            },
+            {
+              "name": "leverage",
+              "type": "String",
+              "description": "支持的杠杆倍数，例如：50x, 100x, 150x"
+            },
+            {
+              "name": "makerFee",
+              "type": "BigDecimal",
+              "description": "挂单手续费"
+            },
+            {
+              "name": "maxLeverage",
+              "type": "Integer",
+              "description": "最大杠杆"
+            },
+            {
+              "name": "minLeverage",
+              "type": "Integer",
+              "description": "最小杠杆"
+            },
+            {
+              "name": "maxPosition",
+              "type": "BigDecimal",
+              "description": "仓位限制"
+            },
+            {
+              "name": "minSize",
+              "type": "BigDecimal",
+              "description": "最小数量"
+            },
+            {
+              "name": "name",
+              "type": "String",
+              "description": "交易对"
+            }
+          ]
+        },
+        {
+          "name": "查看永续合约当前资金费率",
+          "method": "GET",
+          "path": "/v1/perpum/fundingRate",
+          "rate_limit": "10 requests/s",
+          "parameters": [
+            {
+              "name": "instrument",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "交易对"
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "fundingRate",
+              "type": "BigDecimal",
+              "description": "当前资金费率"
+            },
+            {
+              "name": "nextFundingRate",
+              "type": "BigDecimal",
+              "description": "预测下一期资金费率"
+            },
+            {
+              "name": "nextSettleTime",
+              "type": "long",
+              "description": "下一期结算时间"
+            }
+          ]
+        },
+        {
+          "name": "设置移动止盈止损",
+          "method": "POST",
+          "path": "/v1/perpum/moveTPSL",
+          "rate_limit": "5 requests/s",
+          "parameters": [
+            {
+              "name": "openId",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "持仓ID"
+            },
+            {
+              "name": "callbackRate",
+              "type": "BigDecimal",
+              "required": true,
+              "default": null,
+              "description": "回调率"
+            },
+            {
+              "name": "triggerPrice",
+              "type": "BigDecimal",
+              "required": false,
+              "default": null,
+              "description": "激活价格"
+            },
+            {
+              "name": "quantity",
+              "type": "BigDecimal",
+              "required": true,
+              "default": null,
+              "description": "数量"
+            },
+            {
+              "name": "quantityUnit",
+              "type": "int",
+              "required": false,
+              "default": null,
+              "description": "单位：0-USDT，1-张数，2-币"
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "success",
+              "type": "boolean",
+              "description": "是否成功"
+            }
+          ],
+          "example_response": {
+            "code": 0,
+            "msg": ""
+          }
+        },
+        {
+          "name": "查看合约万能金信息",
+          "method": "GET",
+          "path": "/v1/perpum/account/almightyGoldInfo",
+          "rate_limit": "10 requests/s",
+          "parameters": [
+            {
+              "name": "startTime",
+              "type": "Long",
+              "required": false,
+              "default": null,
+              "description": "有效期起始时间"
+            },
+            {
+              "name": "endTime",
+              "type": "Long",
+              "required": false,
+              "default": null,
+              "description": "有效期截止时间"
+            },
+            {
+              "name": "type",
+              "type": "Integer",
+              "required": false,
+              "default": "1,2",
+              "description": "0:待生效 1: 未使用 2:已使用 3:已失效 4发放失败"
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "id",
+              "type": "Long",
+              "description": "万能金id"
+            },
+            {
+              "name": "assetsOut",
+              "type": "Integer",
+              "description": "转出资产是否失效 1：是 0：否"
+            },
+            {
+              "name": "agRecordId",
+              "type": "Integer",
+              "description": "发放记录id"
+            },
+            {
+              "name": "kyc",
+              "type": "Integer",
+              "description": "是否要求高级kyc使用 1：是 0:否"
+            },
+            {
+              "name": "currentAmount",
+              "type": "BigDecimal",
+              "description": "剩余金额"
+            },
+            {
+              "name": "totalAmount",
+              "type": "BigDecimal",
+              "description": "万能金总金额"
+            },
+            {
+              "name": "type",
+              "type": "Integer",
+              "description": "0:待生效 1: 未使用 2:已使用 3:已失效 4发放失败"
+            },
+            {
+              "name": "startTime",
+              "type": "Date",
+              "description": "有效期起始时间"
+            },
+            {
+              "name": "endTime",
+              "type": "Date",
+              "description": "有效期截止时间"
+            },
+            {
+              "name": "remark",
+              "type": "String",
+              "description": "备注"
+            },
+            {
+              "name": "createdDate",
+              "type": "Date",
+              "description": "创建时间"
+            },
+            {
+              "name": "updateDate",
+              "type": "Date",
+              "description": "更新时间"
+            },
+            {
+              "name": "userId",
+              "type": "Long",
+              "description": "用户id"
+            }
+          ],
+          "example_response": {
+            "code": 0,
+            "data": [
+              {
+                "agRecordId": 69,
+                "assetsOut": 0,
+                "createdDate": 1698650673000,
+                "currentAmount": 1,
+                "endTime": 1698909873000,
+                "id": 70,
+                "kyc": 0,
+                "name": "万能金",
+                "processStatus": 0,
+                "startTime": 1698650673000,
+                "totalAmount": 1,
+                "type": 1,
+                "updateDate": 1698650673000,
+                "remark": "备注",
+                "userId": 600003366
+              }
+            ],
+            "msg": ""
+          }
+        },
+        {
+          "name": "获取用户资产信息",
+          "method": "GET",
+          "path": "/v1/perpum/account/getUserAssets",
+          "rate_limit": "10 requests/s",
+          "parameters": [],
+          "response_fields": [
+            {
+              "name": "availableMargin",
+              "type": "BigDecimal",
+              "description": "可用保证金余额（含万能金）"
+            },
+            {
+              "name": "userId",
+              "type": "Long",
+              "description": "用户id"
+            },
+            {
+              "name": "almightyGold",
+              "type": "BigDecimal",
+              "description": "可用万能金余额"
+            },
+            {
+              "name": "availableUsdt",
+              "type": "BigDecimal",
+              "description": "可用USDT余额"
+            },
+            {
+              "name": "alMargin",
+              "type": "BigDecimal",
+              "description": "持仓资产"
+            },
+            {
+              "name": "alFreeze",
+              "type": "BigDecimal",
+              "description": "冻结资产"
+            },
+            {
+              "name": "time",
+              "type": "Long",
+              "description": "时间戳"
+            }
+          ],
+          "example_response": {
+            "code": 0,
+            "data": [
+              {
+                "availableMargin": 996660.6064387699998485,
+                "userId": 600001274,
+                "almightyGold": 0,
+                "availableUsdt": 996660.6064387699998485,
+                "alMargin": 10000,
+                "alFreeze": 10000,
+                "time": 1705785391000
+              }
+            ],
+            "msg": ""
+          }
+        },
+        {
+          "name": "查看所有币对行情信息",
+          "method": "GET",
+          "path": "/v1/perpumPublic/tickers",
+          "rate_limit": "5 requests/s",
+          "parameters": [],
+          "response_fields": [
+            {
+              "name": "contract_id",
+              "type": "Integer",
+              "description": "合约id"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "description": "合约名称"
+            },
+            {
+              "name": "base_coin",
+              "type": "string",
+              "description": "合约币"
+            },
+            {
+              "name": "quote_coin",
+              "type": "string",
+              "description": "USDT"
+            },
+            {
+              "name": "price_coin",
+              "type": "string",
+              "description": "合约币"
+            },
+            {
+              "name": "max_leverage",
+              "type": "int",
+              "description": "最大杠杆"
+            },
+            {
+              "name": "contract_size",
+              "type": "BigDecimal",
+              "description": "面值(一手最小值)"
+            },
+            {
+              "name": "last_price",
+              "type": "BigDecimal",
+              "description": "最新价"
+            },
+            {
+              "name": "high",
+              "type": "BigDecimal",
+              "description": "最高价"
+            },
+            {
+              "name": "low",
+              "type": "BigDecimal",
+              "description": "最低价"
+            },
+            {
+              "name": "rise_fall_rate",
+              "type": "BigDecimal",
+              "description": "涨跌幅"
+            },
+            {
+              "name": "total_volume",
+              "type": "BigDecimal",
+              "description": "成交量"
+            },
+            {
+              "name": "fair_price",
+              "type": "BigDecimal",
+              "description": "标记价格"
+            },
+            {
+              "name": "funding_rate",
+              "type": "BigDecimal",
+              "description": "资金费率"
+            },
+            {
+              "name": "next_funding_rate",
+              "type": "BigDecimal",
+              "description": "预测下一期资金费率"
+            },
+            {
+              "name": "next_funding_time",
+              "type": "long",
+              "description": "下一期结算时间"
+            }
+          ]
+        }
+      ],
+      "websocket": [
+        {
+          "name": "K线",
+          "url": "wss://ws.futurescw.com",
+          "request_parameters": [
+            {
+              "name": "event",
+              "value": "subscribe",
+              "description": "订阅"
+            },
+            {
+              "name": "args",
+              "value": "spot/candle-${granularity}:${symbol}",
+              "description": "${granularity}为粒度[1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 12h, 1d, 1w,1M],${symbol}为所需订阅的币种，例如,LTC-USDT"
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "channel",
+              "type": "string",
+              "description": "订阅的通道"
+            },
+            {
+              "name": "subject",
+              "type": "string",
+              "description": "所属科目"
+            },
+            {
+              "name": "data数组",
+              "type": "array",
+              "description": "数据数组",
+              "fields": [
+                {
+                  "index": 0,
+                  "type": "string",
+                  "description": "时间(毫秒数)"
+                },
+                {
+                  "index": 1,
+                  "type": "bigdecimal",
+                  "description": "开盘价"
+                },
+                {
+                  "index": 2,
+                  "type": "bigdecimal",
+                  "description": "收盘价"
+                },
+                {
+                  "index": 3,
+                  "type": "bigdecimal",
+                  "description": "最高"
+                },
+                {
+                  "index": 4,
+                  "type": "bigdecimal",
+                  "description": "最低"
+                },
+                {
+                  "index": 5,
+                  "type": "bigdecimal",
+                  "description": "成交量"
+                },
+                {
+                  "index": 6,
+                  "type": "bigdecimal",
+                  "description": "成交额"
+                }
+              ]
+            }
+          ],
+          "example_response": {
+            "channel": "spot/candle-15m:BTC-USDT",
+            "subject": "spot/candle-15m",
+            "data": "[\"1681875900000\",\"30214.56\",\"30182.48\",\"30214.56\",\"30182.48\",\"12.9646\",\"391493.29663\"]"
+          }
+        },
+        {
+          "name": "订单薄",
+          "url": "wss://ws.futurescw.com",
+          "request_parameters": [
+            {
+              "name": "event",
+              "value": "subscribe",
+              "description": "订阅"
+            },
+            {
+              "name": "args",
+              "value": "spot/level2:${symbol}",
+              "description": "{symbol}为所需订阅的币种，例如,LTC-USDT"
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "channel",
+              "type": "string",
+              "description": "订阅的通道"
+            },
+            {
+              "name": "subject",
+              "type": "string",
+              "description": "所属科目"
+            },
+            {
+              "name": "data",
+              "type": "object",
+              "description": "数据对象",
+              "fields": [
+                {
+                  "name": "startSeq",
+                  "type": "string",
+                  "description": "开始序号"
+                },
+                {
+                  "name": "endSeq",
+                  "type": "string",
+                  "description": "结束序号"
+                },
+                {
+                  "name": "asks",
+                  "type": "array",
+                  "description": "卖方二维数组",
+                  "fields": [
+                    {
+                      "index": 0,
+                      "type": "bigdecimal",
+                      "description": "单价"
+                    },
+                    {
+                      "index": 1,
+                      "type": "bigdecimal",
+                      "description": "数量"
+                    },
+                    {
+                      "index": 2,
+                      "type": "string",
+                      "description": "序号"
+                    }
+                  ]
+                },
+                {
+                  "name": "bids",
+                  "type": "array",
+                  "description": "买方二维数组",
+                  "fields": [
+                    {
+                      "index": 0,
+                      "type": "bigdecimal",
+                      "description": "单价"
+                    },
+                    {
+                      "index": 1,
+                      "type": "bigdecimal",
+                      "description": "数量"
+                    },
+                    {
+                      "index": 2,
+                      "type": "string",
+                      "description": "序号"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "example_response": {
+            "channel": "spot/level2:BTC-USDT",
+            "subject": "spot/level2",
+            "data": "{\"startSeq\":2130205870,\"endSeq\":2130205870,\"asks\":[[\"30344.39\",\"0.0701\",\"2130205870\"]],\"bids\":[]}"
+          }
+        },
+        {
+          "name": "成交历史",
+          "url": "wss://ws.futurescw.com",
+          "request_parameters": [
+            {
+              "name": "event",
+              "value": "subscribe",
+              "description": "订阅"
+            },
+            {
+              "name": "args",
+              "value": "spot/match:${symbol}",
+              "description": "{symbol}为所需订阅的币种，例如,LTC-USDT"
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "channel",
+              "type": "string",
+              "description": "订阅的通道"
+            },
+            {
+              "name": "subject",
+              "type": "string",
+              "description": "所属科目"
+            },
+            {
+              "name": "data",
+              "type": "array",
+              "description": "数据数组",
+              "fields": [
+                {
+                  "name": "price",
+                  "type": "bigdecimal",
+                  "description": "单价"
+                },
+                {
+                  "name": "side",
+                  "type": "string",
+                  "description": "方向(BUY,买,SELL,卖)"
+                },
+                {
+                  "name": "size",
+                  "type": "string",
+                  "description": "数量"
+                },
+                {
+                  "name": "symbol",
+                  "type": "string",
+                  "description": "币对"
+                },
+                {
+                  "name": "time",
+                  "type": "string",
+                  "description": "时间(毫秒数)"
+                }
+              ]
+            }
+          ],
+          "example_response": {
+            "channel": "spot/match:BTC-USDT",
+            "subject": "spot/match",
+            "data": "[{\"price\":\"30077.88\",\"seq\":\"79895588\",\"side\":\"BUY\",\"size\":\"1.2488\",\"symbol\":\"78\",\"time\":\"1681891021015\"}]"
+          }
+        },
+        {
+          "name": "订阅订单",
+          "url": "wss://ws.futurescw.com",
+          "request_parameters": [
+            {
+              "name": "event",
+              "value": "sub",
+              "description": "订阅"
+            },
+            {
+              "name": "params",
+              "value": {
+                "biz": "exchange",
+                "type": "order"
+              },
+              "description": "参数对象"
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "biz",
+              "type": "string",
+              "description": "交易"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "description": "类型"
+            },
+            {
+              "name": "data",
+              "type": "array",
+              "description": "数据数组",
+              "fields": [
+                {
+                  "name": "type",
+                  "type": "string",
+                  "description": "类型"
+                },
+                {
+                  "name": "time",
+                  "type": "datetime",
+                  "description": "下单时间"
+                },
+                {
+                  "name": "product_id",
+                  "type": "string",
+                  "description": "产品id"
+                },
+                {
+                  "name": "order_id",
+                  "type": "string",
+                  "description": "订单号"
+                },
+                {
+                  "name": "client_id",
+                  "type": "string",
+                  "description": "客户端id"
+                },
+                {
+                  "name": "size",
+                  "type": "string",
+                  "description": "数量"
+                },
+                {
+                  "name": "remaining_size",
+                  "type": "string",
+                  "description": "剩余数量"
+                },
+                {
+                  "name": "price",
+                  "type": "string",
+                  "description": "订单价格"
+                },
+                {
+                  "name": "side",
+                  "type": "string",
+                  "description": "方向-买卖"
+                },
+                {
+                  "name": "order_type",
+                  "type": "string",
+                  "description": "订单类型:LIMIT-限价，MARKET-市价"
+                },
+                {
+                  "name": "reason",
+                  "type": "string",
+                  "description": "原因"
+                }
+              ]
+            }
+          ],
+          "example_response": {
+            "biz": "exchange",
+            "data": [
+              {
+                "type": "DONE",
+                "time": 1697557265740,
+                "product_id": "78",
+                "order_id": 4616004900217272378,
+                "client_id": "",
+                "size": "0.001",
+                "remaining_size": "0",
+                "price": "20000",
+                "side": "BUY",
+                "order_type": "LIMIT",
+                "reason": "FILLED"
+              }
+            ],
+            "type": "order"
+          }
+        },
+        {
+          "name": "订阅资产",
+          "url": "wss://ws.futurescw.com",
+          "request_parameters": [
+            {
+              "name": "event",
+              "value": "sub",
+              "description": "订阅"
+            },
+            {
+              "name": "params",
+              "value": {
+                "biz": "exchange",
+                "type": "assets"
+              },
+              "description": "参数对象"
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "biz",
+              "type": "string",
+              "description": "交易"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "description": "类型"
+            },
+            {
+              "name": "data",
+              "type": "array",
+              "description": "数据数组",
+              "fields": [
+                {
+                  "name": "currency",
+                  "type": "string",
+                  "description": "币种"
+                },
+                {
+                  "name": "available",
+                  "type": "string",
+                  "description": "可用"
+                },
+                {
+                  "name": "hold",
+                  "type": "string",
+                  "description": "冻结"
+                }
+              ]
+            }
+          ],
+          "example_response": {
+            "biz": "exchange",
+            "data": [
+              {
+                "currency": "USDT",
+                "available": "9999.9",
+                "hold": "0.1"
+              }
+            ],
+            "type": "assets"
+          }
+        }
+      ]
+    }
+  }
+}
