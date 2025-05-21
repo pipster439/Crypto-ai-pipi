@@ -112,4 +112,7 @@ python main_pipeline_lbank_with_rsa.py --report_file my_custom_report.md
 - macOS
 - Linux (Ubuntu)
 - 可通过Termux在Android上运行
-（并非）
+
+该工具旨在实现跨平台兼容性。
+
+注意：如果您直接运行项目中的某些独立脚本（例如 `calculate_technical_indicators.py`），请注意其示例用法部分现在使用相对路径来引用示例数据文件。
