@@ -1,3 +1,4 @@
 # Crypto-ai-pipi
 这个项目完完全全就是由ai生成，只有一点人工测试后ai修改
-Manus与Gemini（还有个fvv人类）
+Manus与Gemin
+***上学没时间仔细搞，太幽默了这堆代码，有时间再仔细搞***
